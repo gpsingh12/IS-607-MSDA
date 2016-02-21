@@ -1,0 +1,157 @@
+---
+title: "Assignment 4"
+author: "GP SINGH"
+date: "February 18, 2016"
+output: html_document
+---
+
+
+### 3 (a)
+
+```{r}
+library(stringr)
+
+```
+
+
+
+```{r}
+names <- c("Moe Szyslak", "Burns, C. Montgomery", "Rev. Timothy Lovejoy",
+           "Ned Flanders", "Simpson, Homer", "Dr. Julius Hibbert")
+
+```
+
+
+
+
+The names list with nams followed by "," will be considered as the last names. Split the whole list names in substrings separated by "," using strsplit(). The function sapply applies to the function x, where x reverses the substrings in the position and pasting collapse with spaces(" ").THe combined function is as follows.
+
+
+
+
+```{r}
+names
+
+
+upd_names<- sapply(strsplit(names, split=", "),function(x) 
+  {paste(rev(x),collapse=" ")})
+upd_names
+
+```
+
+
+### 3 (b)
+
+
+We create a logical vector containing "Rev." and "Dr." and check in thee list of names to see if the original names list contain these titles.
+
+```{r}
+log_vec <- c("Rev.", "Dr.")
+
+str_detect(names, log_vec)
+```
+
+
+The method we recently used is acceptable to our case as we knew about the names containing titles.
+
+
+We need to generalize the result to a greater list, we can use the following expression.
+The commonly used convention for titles upper case letter followed by one or more lower case follwed by "." 
+
+
+```{r}
+str_extract(names, "[[:upper:]][:lower:]{1,}\\.+")
+```
+
+
+
+
+
+
+### 3 (c)
+'The most commonly used convention for second name (middle name) is upper case letter followed by "." . We will use this to detect the middle name in the list of names.
+
+```{r}
+str_extract(names, "[[:upper:]]\\.+")
+
+```
+
+
+
+
+
+### 7. 
+
+
+```{r}
+HTML_tag <- c("<title>+++BREAKING NEWS+++</title>")
+```
+
+
+The regular expression <.+> extract the sequence that run from < to > The function return all possible sequence of preceding character.
+
+```{r}
+
+str_extract(HTML_tag, "<.+>")
+
+```
+
+In order to get the first HTML tag, we modify the regular expression by adding ?
+
+that is the expression becomes <.+?>
+
+```{r}
+
+str_extract(HTML_tag, "<.+?>")
+
+```
+
+
+
+### 8.
+
+
+
+```{r}
+binomial_th <- c("(5-3)^2=5^2-2*5*3+3^2")
+```
+
+
+
+
+```{r}
+
+str_extract(binomial_th, "[^(0-9)=+*()]")
+```
+
+Using a caret (^) in the begining matches the inverse of the character class contents. ^(0-9) will refer to non-digits. We can alter this by putting - at the begining or at the end of a character class.The correct expression wiil be [-^0-9=+*()]+
+Using [-^0-9=+*()]+ will yield the required results.
+
+```{r}
+str_extract(binomial_th, "[-^0-9=+*()]+")
+
+```
+
+
+Another expression for obtaining the same result will be:
+
+
+```{r}
+str_extract(binomial_th, "[-^[:digit:]=+*()]+")
+
+```
+
+
+
+### 9
+
+```{r}
+code <- c("clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0Tanwo
+Uwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigO
+d6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5
+fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr")
+
+#No Luck!!
+
+```
+
