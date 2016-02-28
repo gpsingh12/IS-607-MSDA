@@ -1,0 +1,124 @@
+---
+title: "Project 1"
+author: "GP SINGH"
+date: "February 23, 2016"
+output: html_document
+---
+
+
+
+```{r}
+library(RCurl)
+library(stringr)
+
+
+chess_data <- read.csv("https://raw.githubusercontent.com/gpsingh12/IS-607-MSDA/master/tournament.txt", header = TRUE, skip=2)
+#using skip=2 will remove first three lines as USCF and ID were adding up to the substrings created
+head(chess_data)
+
+cd<-unlist(chess_data)
+
+```
+
+
+
+The data given in the original format needs to be separated and stored as different variables, which can be combined later on to create the output as csv file.
+
+
+We will start with unlisting players names.
+
+
+Create a variable player containing names of the players.
+
+```{r}
+player <- str_trim(unlist(str_extract_all(cd, "([[:alpha:]., ]-?){7,}")))
+head(player)
+```
+
+
+
+State represent the names of the states of the players by extracting the information from text file.
+
+```{r}
+state <- str_trim(unlist(str_extract_all(cd, "\\  [[:upper:]]{2}")))
+head(state)
+```
+
+
+
+ Extract the player scores.
+ 
+```{r}
+scores<-str_trim(unlist(str_extract_all(cd, "[0-9]\\.[0-9]-?")))
+head(scores)
+```
+
+
+
+Ratings of the players
+
+```{r}
+rating<-unlist(str_extract_all(cd, "\\: [[:digit:] ]{4}"))
+
+head(rating)
+
+rating_upd <- sub(pattern = ': ', replacement = '', rating)
+
+
+prerating<- as.numeric(rating_upd)
+head(prerating)
+```
+
+
+
+Opponents pre ratings
+
+
+```{r}
+oppavg=unlist(str_extract_all(cd, "\\|[[:upper:]]  [[:digit:] ]{1,}"))
+
+head(oppavg)
+
+
+
+oavg <- as.numeric(unlist(str_extract_all(oppavg,"[[:digit:]]{1,2}")))
+head(oavg)
+
+
+# using python's ideology , finding the number in a list using index, I will create a vector opponent. i.e using a number from oavg it will retrieve the score corresponding to the prerating.
+opponent<- (prerating[oavg])
+head(opponent)
+ # once we have the list of scores of opponents, we will create a matrix to perform mathematical operations (mean).
+
+avg_opp <- matrix(opponent,7,64)
+
+
+
+
+# take the transpose of the matrix to convert it into a matrix of 64 x 7 as required 
+#in accordance with the text file.
+opp1<-t(avg_opp)
+head(opp1)
+# we have a matrix of 64 rows and 7 columns where a11 (first element of row1 and column 1 represent the pre rating of the player 39. Similarly a12 represent element at position row1 and column2 i.e it corresponds to the rating of player 21 (1563) and so on.)
+ 
+opp_prerating <- rowMeans(opp1, n=7)
+opp_prerating<- as.integer(opp_prerating)
+opp_prerating<- round(opp_prerating, digits=4)
+head(opp_prerating)
+
+```
+
+
+
+
+
+```{r}
+
+chess <- data.frame(player, state, scores, prerating, opp_prerating)
+
+head(chess)
+
+
+write.csv(chess, "C:/Users/Gurpreet/Documents/IS607/chessdata.csv")
+```
+
