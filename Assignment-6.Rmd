@@ -1,0 +1,84 @@
+---
+title: "Assignment 6"
+author: "GP SINGH"
+date: "March 1, 2016"
+output: html_document
+---
+
+
+
+
+```{r}
+library(tidyr)
+
+library(dplyr)
+
+
+flightdata<- read.csv("https://raw.githubusercontent.com/gpsingh12/IS-607-MSDA/master/flightdata.csv")
+
+
+names(flightdata) <- c("Airline", "Arrival", "Los Angeles", "Phoenix", "San Diego",
+                       "San Francisco", "Seatlle")
+
+# row 3 is empty, we need to remove row 3.
+
+
+flightdata <- na.omit(flightdata)
+
+
+# variables at row 2 column 1 and row 4 column 1 are empty, we need to add the names
+
+
+flightdata[2,1]<-c("ALASKA")
+flightdata[4,1]<-c("AM WEST")
+```
+
+```{r}
+flight <- flightdata%>%
+  gather(City,Data, 3:ncol(flightdata))
+
+```
+
+```{r}
+flight%>%
+  spread(Arrival,Data )%>%
+   mutate(Total = delayed +`on time`)
+p<-subset(flight,  Airline == 'ALASKA')
+p
+sum(p$Data)
+
+q<-subset(flight, Airline == 'AM WEST')
+q
+sum(q$Data)
+```
+
+
+Analysis
+
+```{r}
+airline_delay = flight%>%
+  group_by(Airline)
+d<-subset(airline_delay, Arrival == 'delayed' & Airline == 'ALASKA')
+d
+sum(d$Data)
+
+a<-subset(airline_delay, Arrival == 'delayed' & Airline == 'AM WEST')
+a
+
+sum(a$Data)
+```
+
+
+
+```{r}
+#Delay Percentage
+
+#ALASKA
+sum(((d$Data)/sum(p$Data)) * 100)
+
+#AM WEST
+sum(((a$Data)/sum(q$Data)) * 100)
+```
+
+
+ALASKA has more delays than AM WEST
