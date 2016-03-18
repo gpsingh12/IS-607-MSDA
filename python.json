@@ -1,0 +1,15 @@
+﻿{
+    "book": [
+        {
+            "title": ":Learning Python, 5th Edition",
+            "author": ["Mark Lutz"],
+            "Publisher": O'Reilly Media,
+            "Formats": Print Ebook Safari Books Online ,
+            "Print": June 2013 ,
+	    "Ebook": June 2013,
+	    "Pages": 1600,
+	    "Ebook ISBN":978-1-4493-5568-5
+            "ISBN 10":1-4493-5568-4 
+        },
+  ]
+}
