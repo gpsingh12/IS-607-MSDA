@@ -1,0 +1,162 @@
+---
+title: "skills_analysis"
+author: "GP SINGH"
+date: "March 25, 2016"
+output: html_document
+---
+
+
+#### Installing the required library
+
+```{r}
+suppressWarnings(library(data.table))
+suppressWarnings(library(knitr))
+suppressWarnings(library(tidyr))
+suppressWarnings(require(plyr))
+suppressWarnings(library(wordcloud))
+suppressWarnings(library("RColorBrewer"))
+suppressWarnings(library(plotrix))
+suppressWarnings(library(plotly))
+suppressWarnings(library(ggplot2))
+suppressWarnings(library("devtools"))
+
+```
+
+
+The data is extracted from csv file that was generated using the articles and web urls.
+
+```{r}
+#reading the data from csv file
+data1 <- read.csv("https://raw.githubusercontent.com/RobertSellers/SlackProjects/master/data/Build-URL_DataFrame-Output.csv")
+
+head(data1)
+#data1 contains doc_title, skill_name and frequency of occurence of skills in that document
+```
+
+ We will remove the column doc_title, as it is unnecessary for Analysis
+
+
+```{r}
+skill <- data1[, 2:3]
+
+head(skill)
+```
+
+
+
+```{r}
+#filtering out unique skills
+sapply(skill, function(x) length(unique(x)))
+
+#149 unique skills 
+# We want to remove ones with zero frequency.
+
+skills <- subset(skill, ds_freq != 0)
+
+# the dataset skills have all the skills with zero frequency removed.
+
+sapply(skills, function(x) length(unique(x)))
+```
+
+Collecting the unique skills in all articles and adding up the frequency to create a data frame with unique skills and their count.
+
+```{r}
+DT <- data.table(skills)
+data_count <-DT[, sum(ds_freq), by = skill_name]
+dat <- data.frame(data_count)
+
+
+head(dat)
+dim(dat)
+
+df<- dat[order(-dat$V1), ]
+
+
+head(df)
+kable(df)
+
+
+
+```
+
+
+## Big Data, Statistics and R are the top three skills for Data Scientists.
+
+
+In any organization that wants to leverage big data to gain value, data science is the secret sauce. But, it is incredibly difficult to find experts who embody all the necessary talents - so if you manage to hire a data scientist, nurture them, keep them engaged, and give them autonomy to be their own architects in figuring out how to add value to the business. At the end of the day, data science is a capability that turns information to gold, and data scientists are uniquely positioned to be transformative figures within a company. 
+
+
+##Visualizations
+
+
+
+### #for visualizations we will create a dataframe with  skills whose frequency of occurence is 60 or more for data scientists
+```{r}
+top20 <- subset(df, V1 >= 60)
+x <-barplot(top20$V1, main = "Distribution of Skills", xlab = "skills", ylab="frequency", col=c("darkblue","red"), names.arg=top20$skill_name)
+
+
+
+barplot(top20$V1, main="Dis. of Skills", ylab="frequency", names.arg=top20$skill_name, las=2, col=rainbow(15))
+
+p<-qplot(top20$skill_name, top20$V1, data = top20, color = top20$skill_name)
+p + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+```
+
+
+
+
+
+Wordcloud 
+
+
+
+```{r}
+
+set.seed(1234)
+wordcloud(words = df$skill_name, freq = df$V1, rot.per=0.45, 
+          colors=brewer.pal(8, "Dark2"))
+
+```
+
+
+
+
+##Analysis of Soft and Technical Skills
+
+
+```{r}
+data2 <- read.csv("https://raw.githubusercontent.com/RobertSellers/SlackProjects/master/data/skills_modified.csv")
+
+head(data2)
+dd <-dim(data2)
+dd
+#We will create two datasets for technical and non technical skills
+
+soft <- subset(data2, sc_id == 2)
+soft
+tech <- subset(data2, sc_id == 1)
+
+#checking dimensions of  datasets
+
+ds<- dim(soft)
+ds
+dt<- dim(tech)
+dt
+# percentage of occurence
+
+soft_per <- as.numeric((26/149)*100)
+soft_per
+
+tech_per<- as.numeric((123/149)*100)
+tech_per
+
+```
+
+
+```{r}
+
+```
+
