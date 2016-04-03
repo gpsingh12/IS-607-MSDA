@@ -1,0 +1,67 @@
+---
+title: "Assignment  10"
+author: "GP SINGH"
+date: "March 30, 2016"
+output: html_document
+---
+
+
+The New York Times web site provides a rich set of APIs, as described here:
+http://developer.nytimes.com/docs
+You'll need to start by signing up for an API key.
+Your task is to choose one of the New York Times APIs, construct an interface in R to read in the JSON data, and transform it to an R dataframe.
+
+
+####**Required libraries**
+
+```{r}
+library(jsonlite)
+library(knitr)
+
+
+```
+
+
+
+####**Registering for an API key**
+
+To request for NY Times API key, register at  [link](https://myaccount.nytimes.com/register)
+
+
+
+The information about creating query and url to be used can be found [here](http://developer.nytimes.com/docs/read/article_search_api_v2#h2-requests)
+
+
+
+Web API and URL
+```{r}
+
+api_key <- "&api-key=e2ecd4b8ba0d275c1ae6a42a808a991e:5:74859716"
+
+url <- "http://api.nytimes.com/svc/search/v2/articlesearch.json?q=Clinton-Trump"
+
+# the query Clinton-Trump was used by me. We can choose different terms and further refine the queries 
+```
+
+
+####**Reading the json data in r and converting it into a data frame**
+
+```{r}
+dat <- (paste0(url, api_key))
+
+dat <-fromJSON(dat)
+
+
+#converting dat into a dataframe
+df <- as.data.frame(dat$response)
+names(df)
+
+
+# creating data frame for the required terms
+
+dataframe <- data.frame(df$docs.section_name,df$docs.lead_paragraph, df$docs.abstract, df$docs.web_url)
+
+
+kable(dataframe)
+```
+
