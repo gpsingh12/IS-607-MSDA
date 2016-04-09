@@ -1,0 +1,188 @@
+---
+title: "Spam/Ham"
+author: "GP SINGH"
+date: "April 4, 2016"
+output: html_document
+---
+
+
+###It can be useful to be able to classify new "test" documents using already classified "training" documents.  A common example is using a corpus of labeled spam and ham (non-spam) e-mails to predict whether or not a new document is spam.  
+
+For this project, you can start with a spam/ham dataset, then predict the class of new documents (either withheld from the training dataset or from another source such as your own spam folder).
+
+
+#### Installing required packages and libraries
+
+
+```{r}
+library(kernlab)
+library(knitr)
+library(rpart)
+library(e1071)
+library(RTextTools)
+library(randomForest)
+library(ROCR)
+
+```
+
+###**Data Collection**
+
+The dataset is retrieved form UCI Machine Learning Repository. Information about the dataset can be accessed using the [link](https://archive.ics.uci.edu/ml/machine-learning-databases/spambase/)
+
+We will use two different approaches for reading the data in r.
+
+#### ***Approach: 1***
+
+
+We will install the package kernlab. The library(kernlab) contain the dataset which can be used with ease for
+creating models for spam detection.
+
+we will use r command data(spam) to get the data in r.
+
+```{r}
+data(spam)
+
+kable(head(spam))
+
+dim(spam)
+
+
+```
+
+
+ The second approach is copying and saving the data in csv file and reading it in r. There is another file `name_data` which contains the names of the variables.After reading it in r, the two files data and `name_data` are  merged using a function, where `name_data` is appended to the header row of data.
+####***Approach 2***
+
+```{r}
+
+dataset <- read.csv("data.csv",header=FALSE,sep=";")
+names <- read.csv("name_data.csv",header=FALSE,sep=";")
+names(dataset) <- sapply((1:nrow(names)),function(i) toString(names[i,1]))
+
+kable(head(dataset))
+```
+
+
+The two approaches used provide same datasets. 
+
+
+####**Splitting the data into training and test data sets**
+
+Once we have the data for spam emails, we will split that dataset into training and test datasets. We will select 80% of the data randomly from our dataset to test it against the remaining 20% test dataset.
+
+```{r}
+sub <- sample(nrow(spam), floor(nrow(spam) * 0.8))
+train <- spam[sub, ]
+test <- spam[-sub, ]
+
+
+
+dim(train)
+dim(test)
+```
+
+
+The training and test datasets are now used for creating the models.
+
+
+
+
+###***SVM model***
+
+```{r}
+svm.model <- svm(type~., data = train)
+
+
+svm.pred <- predict(svm.model,test[1:57,])
+
+svm.pred <- predict(svm.model,test)
+
+
+tab <-table(predicted = svm.pred, actual = test[,58])
+
+
+# to find the precision and accuracy we can use caret library. I was having problems even after the caret libraryy was installed. I used a manual technique for calculating the accuracy of the models
+
+#TP = True Positive
+#TN = True Negative
+#FP = False Positive
+#FN = False Negative
+
+TP <-tab[2,2]
+TN <-tab[1,1]
+
+FP<-tab[1,2]
+FN<-tab[2,1]
+
+Accuracy_SVM<- (TN + TP)/(TN+TP+FN+FP)
+Accuracy_SVM
+
+```
+
+
+
+
+###***Recursive Partitioning***
+
+
+
+```{r}
+
+
+rpart.model <- rpart(type~., data =train)
+rpart.pred <- predict(rpart.model,test, type = "class")
+tab <-table(predicted=rpart.pred,actual=test[,58])
+TP <-tab[2,2]
+TN <-tab[1,1]
+
+FP<-tab[1,2]
+FN<-tab[2,1]
+
+Accuracy_RecPart<- (TN + TP)/(TN+TP+FN+FP)
+Accuracy_RecPart
+```
+
+###***Random Forest***
+
+```{r}
+
+
+spam.rf<-randomForest(type~.,data=train)
+rf.pred <- predict(spam.rf, test)
+tab <-table(predicted=rf.pred,actual=test[,58])
+
+tab
+TP <-tab[2,2]
+TN <-tab[1,1]
+
+FP<-tab[1,2]
+FN<-tab[2,1]
+
+Accuracy_RF<- (TN + TP)/(TN+TP+FN+FP)
+Accuracy_RF
+```
+
+
+
+Comparing the accuracies of three models
+
+```{r}
+
+Accuracy <- data.frame(Accuracy_SVM, Accuracy_RecPart, Accuracy_RF)
+
+kable(Accuracy)
+```
+
+
+
+#### Random Forest has better accuracy followed by SVM and Recursive Partitioning.
+
+#### Reference:
+
+
+http://www.gettinggeneticsdone.com/2011/02/split-data-frame-into-testing-and.html
+
+https://en.wikibooks.org/wiki/Data_Mining_Algorithms_In_R/Classification/SVM
+
+
+https://www.researchgate.net/post/Whats_the_difference_between_training_set_and_test_set
